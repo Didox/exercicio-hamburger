@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 
 namespace hamburger_exercicio
@@ -11,6 +12,8 @@ namespace hamburger_exercicio
         private static List<Hamburger> hamburgeres = new List<Hamburger>();
         static void Main(string[] args)
         {
+            carregarIngredientesDoDisco();
+
             while(true)
             {
                 Console.Clear();
@@ -19,6 +22,7 @@ namespace hamburger_exercicio
                 Console.WriteLine("2 - Cadastrar hamburger");
                 Console.WriteLine("3 - Cadastrar pedido");
                 Console.WriteLine("4 - Listar pedidos");
+                Console.WriteLine("5 - Listar ingredientes");
                 Console.WriteLine("0 - Sair");
 
                 int opcao = Convert.ToInt16(Console.ReadLine());
@@ -37,10 +41,43 @@ namespace hamburger_exercicio
                     case 4:
                         listarPedidos();
                         break;
+                    case 5:
+                        listarIngredientes();
+                        break;
                     case 0:
                         return;
                 }
             }
+        }
+
+        private static void carregarIngredientesDoDisco()
+        {
+            string readText = File.ReadAllText("ingredientes.csv");
+            var linhas = readText.Split('\n');
+            foreach(var linha in linhas)
+            {
+                var colunas = linha.Split(';');
+                if(colunas[0] == "" || colunas[0].ToLower() == "codigo") continue;
+                ingredientes.Add(new Ingrediente{
+                    Codigo = Convert.ToInt16(colunas[0]), 
+                    Nome = colunas[1]
+                });
+            }
+        }
+
+        private static void listarIngredientes()
+        {
+            Console.Clear();
+
+            Console.WriteLine("======== Lista de ingredientes ========");
+           
+            foreach(var ingrediente in ingredientes)
+            {
+                Console.WriteLine($"{ingrediente.Codigo} - {ingrediente.Nome}");
+                Console.WriteLine("----------------------------------");
+            }
+
+            Thread.Sleep(10000);
         }
 
         private static void listarPedidos()
@@ -187,8 +224,21 @@ namespace hamburger_exercicio
             ingrediente.Codigo = ingredientes.Count + 1;
             ingredientes.Add(ingrediente);
 
+            salvarIngredientesCsv(ingredientes);
+
             Console.WriteLine("Ingrediente cadastrado com sucesso");
             Thread.Sleep(1000);
+        }
+
+        private static void salvarIngredientesCsv(List<Ingrediente> ingredientes)
+        {
+            string conteudoCsv = "codigo;nome\n";
+            foreach(var ingrediente in ingredientes)
+            {
+                conteudoCsv += $"{ingrediente.Codigo};{ingrediente.Nome}\n";
+            }
+            
+            File.WriteAllText("ingredientes.csv", conteudoCsv);
         }
     }
 }
