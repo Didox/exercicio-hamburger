@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Threading;
+using Npgsql;
 
 namespace hamburger_exercicio
 {
@@ -14,7 +15,8 @@ namespace hamburger_exercicio
         private static List<Cliente> clientes = new List<Cliente>();
         static void Main(string[] args)
         {
-            carregarClientesDoDiscoEmCsv();
+            //carregarClientesDoDiscoEmCsv();
+            carregarClientesDoPostgreSql();
             carregarIngredientesDoDiscoEmCsv();
             carregarHamburgeresDoDiscoEmCsv();
             carregarPedidosDoDiscoEmCsv();
@@ -166,6 +168,28 @@ namespace hamburger_exercicio
             }
         }
 
+        private static void carregarClientesDoPostgreSql()
+        {
+            string connString ="Server=localhost;Username=danilo;Database=pedido_hamburger;Port=5432;Password=;SSLMode=Prefer";
+            using (var conn = new NpgsqlConnection(connString))
+            {
+                conn.Open();
+                using (var command = new NpgsqlCommand("select * from clientes", conn))
+                {
+                    var dr = command.ExecuteReader();
+                    while(dr.Read())
+                    {
+                        clientes.Add(new Cliente{
+                            Codigo = Convert.ToInt16(dr["codigo"]), 
+                            Nome = dr["nome"].ToString(),
+                            Endereco = dr["endereco"].ToString(),
+                            Telefone = dr["telefone"].ToString()
+                        });
+                    }
+                }
+            }
+        }
+        
         private static void carregarClientesDoDiscoEmJson()
         {
             string readText = File.ReadAllText("clientes.json");
