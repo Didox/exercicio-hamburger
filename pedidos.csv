@@ -1,2 +1,4 @@
-Codigo;Itens;ClienteNome;ClienteEndereco
-1;1|3;Danilo;Rua teste 123
+Codigo;Itens;CodigoCliente
+1;1|3;1
+2;2|2;1
+3;2|2;2
