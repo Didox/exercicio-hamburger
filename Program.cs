@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
 using System.Threading;
 
 namespace hamburger_exercicio
@@ -12,8 +13,11 @@ namespace hamburger_exercicio
         private static List<Hamburger> hamburgeres = new List<Hamburger>();
         static void Main(string[] args)
         {
-            carregarIngredientesDoDisco();
-            carregarhamburgeresDoDisco();
+            // carregarIngredientesDoDiscoEmCsv();
+            // carregarHamburgeresDoDiscoEmCsv();
+
+            carregarIngredientesDoDiscoEmJson();
+            carregarhamburgeresDoDiscoEmJson();
 
             while(true)
             {
@@ -55,7 +59,7 @@ namespace hamburger_exercicio
             }
         }
 
-        private static void carregarhamburgeresDoDisco()
+        private static void carregarHamburgeresDoDiscoEmCsv()
         {
             string readText = File.ReadAllText("hamburgeres.csv");
             var linhas = readText.Split('\n');
@@ -82,7 +86,13 @@ namespace hamburger_exercicio
             }
         }
 
-        private static void carregarIngredientesDoDisco()
+        private static void carregarhamburgeresDoDiscoEmJson()
+        {
+            string readText = File.ReadAllText("hamburgeres.json");
+            hamburgeres = JsonSerializer.Deserialize<List<Hamburger>>(readText);
+        }
+
+        private static void carregarIngredientesDoDiscoEmCsv()
         {
             string readText = File.ReadAllText("ingredientes.csv");
             var linhas = readText.Split('\n');
@@ -95,6 +105,12 @@ namespace hamburger_exercicio
                     Nome = colunas[1]
                 });
             }
+        }
+
+        private static void carregarIngredientesDoDiscoEmJson()
+        {
+            string readText = File.ReadAllText("ingredientes.json");
+            ingredientes = JsonSerializer.Deserialize<List<Ingrediente>>(readText);
         }
 
         private static void listarIngredientes()
@@ -238,7 +254,8 @@ namespace hamburger_exercicio
 
             hamburgeres.Add(hamburger);
 
-            salvarHamburgeresCsv(hamburgeres);
+            // salvarHamburgeresCsv(hamburgeres);
+            salvarHamburgeresJson(hamburgeres);
 
             Console.WriteLine("Hamburger cadastrado com sucesso");
             Thread.Sleep(1000);
@@ -279,7 +296,8 @@ namespace hamburger_exercicio
             ingrediente.Codigo = ingredientes.Count + 1;
             ingredientes.Add(ingrediente);
 
-            salvarIngredientesCsv(ingredientes);
+            // salvarIngredientesCsv(ingredientes);
+            salvarIngredientesJson(ingredientes);
 
             Console.WriteLine("Ingrediente cadastrado com sucesso");
             Thread.Sleep(1000);
@@ -301,6 +319,11 @@ namespace hamburger_exercicio
             File.WriteAllText("hamburgeres.csv", conteudoCsv);
         }
 
+        private static void salvarHamburgeresJson(List<Hamburger> hamburgeres)
+        {
+            File.WriteAllText("hamburgeres.json", JsonSerializer.Serialize(hamburgeres));
+        }
+
         private static void salvarIngredientesCsv(List<Ingrediente> ingredientes)
         {
             string conteudoCsv = "codigo;nome\n";
@@ -310,6 +333,11 @@ namespace hamburger_exercicio
             }
             
             File.WriteAllText("ingredientes.csv", conteudoCsv);
+        }
+
+        private static void salvarIngredientesJson(List<Ingrediente> ingredientes)
+        {
+            File.WriteAllText("ingredientes.json", JsonSerializer.Serialize(ingredientes));
         }
     }
 }
