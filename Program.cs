@@ -19,6 +19,7 @@ namespace hamburger_exercicio
             carregarHamburgeresDoDiscoEmCsv();
             carregarPedidosDoDiscoEmCsv();
 
+            // carregarClientesDoDiscoEmJson();
             // carregarIngredientesDoDiscoEmJson();
             // carregarHamburgeresDoDiscoEmJson();
             // carregarPedidosDoDiscoEmJson();
@@ -165,6 +166,12 @@ namespace hamburger_exercicio
             }
         }
 
+        private static void carregarClientesDoDiscoEmJson()
+        {
+            string readText = File.ReadAllText("clientes.json");
+            clientes = JsonSerializer.Deserialize<List<Cliente>>(readText);
+        }
+
         private static void carregarIngredientesDoDiscoEmJson()
         {
             string readText = File.ReadAllText("ingredientes.json");
@@ -278,6 +285,7 @@ namespace hamburger_exercicio
 
                 clientes.Add(pedido.Cliente);
                 salvarClientesCsv(clientes);
+                //salvarClientesJson(clientes);
             }
 
             selectionaHamburgeres(pedido);
@@ -454,6 +462,11 @@ namespace hamburger_exercicio
         private static void salvarIngredientesJson(List<Ingrediente> ingredientes)
         {
             File.WriteAllText("ingredientes.json", JsonSerializer.Serialize(ingredientes));
+        }
+
+        private static void salvarClientesJson(List<Cliente> clientes)
+        {
+            File.WriteAllText("clientes.json", JsonSerializer.Serialize(clientes));
         }
 
         private static void salvarPedidosJson(List<Pedido> pedidos)
