@@ -17,16 +17,18 @@ namespace hamburger_exercicio
         {
             //carregarClientesDoDiscoEmCsv();
             carregarClientesDoPostgreSql();
-            carregarIngredientesDoDiscoEmCsv();
-            carregarHamburgeresDoDiscoEmCsv();
-            carregarPedidosDoDiscoEmCsv();
+            //carregarIngredientesDoDiscoEmCsv();
+            carregarIngredientesDoPostgreSql();
+            carregarHamburgeresDoPostgreSql();
+            //carregarHamburgeresDoDiscoEmCsv();
+            //carregarPedidosDoDiscoEmCsv();
 
             // carregarClientesDoDiscoEmJson();
             // carregarIngredientesDoDiscoEmJson();
             // carregarHamburgeresDoDiscoEmJson();
             // carregarPedidosDoDiscoEmJson();
 
-            while(true)
+            while (true)
             {
                 Console.Clear();
                 Console.WriteLine("Bem vindo ao programa do Hamburger o que você deseja fazer ?");
@@ -70,6 +72,45 @@ namespace hamburger_exercicio
             }
         }
 
+        private static void carregarHamburgeresDoPostgreSql()
+        {
+            string connString = "Server=localhost;Username=postgres;Database=pedido_hamburger;Port=5432;Password=9697;SSLMode=Prefer";
+            using (var conn = new NpgsqlConnection(connString))
+            {
+                conn.Open();
+                using (var command = new NpgsqlCommand("select * from hamburgeres", conn))
+                {
+                    var dr = command.ExecuteReader();
+                    while (dr.Read())
+                    {
+                        hamburgeres.Add(new Hamburger
+                        {
+                            Codigo = Convert.ToInt16(dr["codigo"]),
+                            Nome = dr["nome"].ToString(),
+                            Valor = Convert.ToDouble(dr["valor"])
+                        });
+                    }
+                    dr.Close();
+                }
+
+                foreach (var hamburger in hamburgeres)
+                {
+                    using (var command = new NpgsqlCommand("select ingredientes.* from ingredientes inner join hamburgeres_ingredientes on hamburgeres_ingredientes.codigo_ingrediente = ingredientes.codigo where hamburgeres_ingredientes.codigo_hamburger = " + hamburger.Codigo, conn))
+                    {
+                        hamburger.Ingredientes = new List<Ingrediente>();
+                        var dr = command.ExecuteReader();
+                        while (dr.Read())
+                        {
+                            hamburger.Ingredientes.Add(new Ingrediente
+                            {
+                                Codigo = Convert.ToInt16(dr["codigo"]),
+                                Nome = dr["nome"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+        }
         private static void carregarHamburgeresDoDiscoEmCsv()
         {
             string readText = File.ReadAllText("hamburgeres.csv");
@@ -170,7 +211,7 @@ namespace hamburger_exercicio
 
         private static void carregarClientesDoPostgreSql()
         {
-            string connString ="Server=localhost;Username=danilo;Database=pedido_hamburger;Port=5432;Password=;SSLMode=Prefer";
+            string connString ="Server=localhost;Username=postgres;Database=pedido_hamburger;Port=5432;Password=9697;SSLMode=Prefer";
             using (var conn = new NpgsqlConnection(connString))
             {
                 conn.Open();
@@ -189,7 +230,28 @@ namespace hamburger_exercicio
                 }
             }
         }
-        
+
+        private static void carregarIngredientesDoPostgreSql()
+        {
+            string connString = "Server=localhost;Username=postgres;Database=pedido_hamburger;Port=5432;Password=9697;SSLMode=Prefer";
+            using (var conn = new NpgsqlConnection(connString))
+            {
+                conn.Open();
+                using (var command = new NpgsqlCommand("select * from ingredientes", conn))
+                {
+                    var dr = command.ExecuteReader();
+                    while (dr.Read())
+                    {
+                        ingredientes.Add(new Ingrediente
+                        {
+                            Codigo = Convert.ToInt16(dr["codigo"]),
+                            Nome = dr["nome"].ToString(),
+                        });
+                    }
+                }
+            }
+        }
+
         private static void carregarClientesDoDiscoEmJson()
         {
             string readText = File.ReadAllText("clientes.json");
