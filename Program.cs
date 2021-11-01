@@ -72,6 +72,7 @@ namespace hamburger_exercicio
             }
         }
 
+<<<<<<< HEAD
         private static void salvarPedidosPostgreSql(List<Pedido> pedidos)
         {
             string connString = "Server=localhost;Username=postgres;Database=pedido_hamburger;Port=5432;Password=9697;SSLMode=Prefer";
@@ -190,6 +191,8 @@ namespace hamburger_exercicio
             }
         }
 
+=======
+>>>>>>> c4c83953415eb48dad701df7b1a360580e60a3b0
         private static void carregarHamburgeresDoPostgreSql()
         {
             string connString = "Server=localhost;Username=postgres;Database=pedido_hamburger;Port=5432;Password=9697;SSLMode=Prefer";
@@ -210,6 +213,7 @@ namespace hamburger_exercicio
                     }
                     dr.Close();
                 }
+<<<<<<< HEAD
                 conn.Close();
                 conn.Dispose();
             }
@@ -217,6 +221,8 @@ namespace hamburger_exercicio
             using (var conn = new NpgsqlConnection(connString))
             {
                 conn.Open();
+=======
+>>>>>>> c4c83953415eb48dad701df7b1a360580e60a3b0
 
                 foreach (var hamburger in hamburgeres)
                 {
@@ -232,12 +238,17 @@ namespace hamburger_exercicio
                                 Nome = dr["nome"].ToString()
                             });
                         }
+<<<<<<< HEAD
                         dr.Close();
                     }
                 }
 
                 conn.Close();
                 conn.Dispose();
+=======
+                    }
+                }
+>>>>>>> c4c83953415eb48dad701df7b1a360580e60a3b0
             }
         }
         private static void carregarHamburgeresDoDiscoEmCsv()
@@ -380,10 +391,14 @@ namespace hamburger_exercicio
                             Nome = dr["nome"].ToString(),
                         });
                     }
+<<<<<<< HEAD
                     dr.Close();
                 }
                 conn.Close();
                 conn.Dispose();
+=======
+                }
+>>>>>>> c4c83953415eb48dad701df7b1a360580e60a3b0
             }
         }
 
