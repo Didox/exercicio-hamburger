@@ -6,13 +6,8 @@
     <RootNamespace>hamburger_exercicio</RootNamespace>
   </PropertyGroup>
 
-<<<<<<< HEAD
-  <ItemGroup>
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.7" />
-=======
   <ItemGroup>
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.10" />
->>>>>>> c4c83953415eb48dad701df7b1a360580e60a3b0
   </ItemGroup>
 
 </Project>
