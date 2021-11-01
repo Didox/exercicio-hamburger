@@ -78,16 +78,30 @@ namespace hamburger_exercicio
             using (var conn = new NpgsqlConnection(connString))
             {
                 conn.Open();
-                foreach (var ingrediente in ingredientes)
+                foreach (var pedido in pedidos)
                 {
-                    var command = new NpgsqlCommand("select count (1) from ingredientes where codigo=" + ingrediente.Codigo, conn);
-                    var qtdIngrediente = Convert.ToInt16(command.ExecuteScalar());
-                    if (qtdIngrediente > 0) continue;
+                    var command = new NpgsqlCommand("select count (1) from pedidos where codigo=" + pedido.Codigo, conn);
+                    var qtdPedido = Convert.ToInt16(command.ExecuteScalar());
+                    if (qtdPedido > 0) continue;
 
-                    command = new NpgsqlCommand("insert into ingredientes (codigo, nome) values (@codigo, @nome)", conn);
-                    command.Parameters.AddWithValue("@codigo", ingrediente.Codigo);
-                    command.Parameters.AddWithValue("@nome", ingrediente.Nome);
+                    command = new NpgsqlCommand("insert into pedidos (codigo_pedido, codigo_cliente, valor) values (@codigo, @nome, @valor)", conn);
+                    command.Parameters.AddWithValue("@codigo_pedido", pedido.Codigo);
+                    command.Parameters.AddWithValue("@codigo_hamburguer", Hamburger.Codigo);
+                    command.Parameters.AddWithValue("@valor", hamburger.Valor);
                     command.ExecuteNonQuery();
+
+                    foreach (var ingrediente in hamburger.Ingredientes)
+                    {
+                        command = new NpgsqlCommand($"select count (1) from hamburgeres_ingredientes where codigo_hamburger = {hamburger.Codigo} and codigo_ingrediente = {ingrediente.Codigo}", conn);
+                        var qtdHamb_ingre = Convert.ToInt16(command.ExecuteScalar());
+                        if (qtdHamb_ingre > 0) continue;
+
+                        command = new NpgsqlCommand("insert into hamburgeres_ingredientes (codigo_hamburger, codigo_ingrediente) values (@codigo_hamburger, @codigo_ingrediente)", conn);
+                        command.Parameters.AddWithValue("@codigo_hamburger", hamburger.Codigo);
+                        command.Parameters.AddWithValue("@codigo_ingrediente", ingrediente.Codigo);
+                        command.ExecuteNonQuery();
+                    }
+
                 }
                 conn.Close();
                 conn.Dispose();
@@ -501,7 +515,8 @@ namespace hamburger_exercicio
             pedidos.Add(pedido);
 
             // salvarPedidosJson(pedidos);
-            salvarPedidosCsv(pedidos);
+            //salvarPedidosCsv(pedidos);
+            salvarPedidosPostgreSql(pedidos);
 
             Console.WriteLine("Pedido cadastrado com sucesso!");
             Thread.Sleep(1000);
