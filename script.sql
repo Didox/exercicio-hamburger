@@ -53,3 +53,21 @@ CREATE TABLE hamburgeres_ingredientes (
 	codigo_ingrediente int not null
 );
 
+
+CREATE TABLE pedidos (
+	codigo int not null,
+	codigo_cliente int not null,
+	valor_total float not null
+);
+
+
+
+CREATE TABLE pedido_hamburgeres (
+	codigo_pedido int not null,
+	codigo_hamburger int not null,
+	quantidade int not null,
+	valor float not null
+);
+
+
+pedidos

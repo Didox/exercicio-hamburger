@@ -16,17 +16,20 @@ namespace hamburger_exercicio
         static void Main(string[] args)
         {
             //carregarClientesDoDiscoEmCsv();
+            // carregarClientesDoDiscoEmJson();
             carregarClientesDoPostgreSql();
+
+            // carregarIngredientesDoDiscoEmJson();
             //carregarIngredientesDoDiscoEmCsv();
             carregarIngredientesDoPostgreSql();
-            carregarHamburgeresDoPostgreSql();
-            //carregarHamburgeresDoDiscoEmCsv();
-            //carregarPedidosDoDiscoEmCsv();
 
-            // carregarClientesDoDiscoEmJson();
-            // carregarIngredientesDoDiscoEmJson();
             // carregarHamburgeresDoDiscoEmJson();
+            //carregarHamburgeresDoDiscoEmCsv();
+            carregarHamburgeresDoPostgreSql();
+
             // carregarPedidosDoDiscoEmJson();
+            // carregarPedidosDoDiscoEmCsv();
+            carregarPedidosDoPostgreSql();
 
             while (true)
             {
@@ -261,6 +264,70 @@ namespace hamburger_exercicio
                 });
             }
         }
+        
+
+        private static void carregarPedidosDoPostgreSql()
+        {
+            string connString = "Server=localhost;Username=danilo;Database=pedido_hamburger;Port=5432;Password=;SSLMode=Prefer";
+            using (var conn = new NpgsqlConnection(connString))
+            {
+                conn.Open();
+                using (var command = new NpgsqlCommand("select * from pedidos", conn))
+                {
+                    var dr = command.ExecuteReader();
+                    while (dr.Read())
+                    {
+                        pedidos.Add(new Pedido
+                        {
+                            Codigo = Convert.ToInt16(dr["codigo"]),
+                            Cliente = clientes.Find(c =>  c.Codigo == Convert.ToInt16(dr["codigo_cliente"])),
+                        });
+                    }
+                    dr.Close();
+                }
+
+                foreach (var pedido in pedidos)
+                {
+                    using (var command = new NpgsqlCommand("select hamburgeres.*, pedido_hamburgeres.quantidade, pedido_hamburgeres.valor as valor_vendido from hamburgeres inner join pedido_hamburgeres on pedido_hamburgeres.codigo_hamburger = hamburgeres.codigo where pedido_hamburgeres.codigo_pedido = " + pedido.Codigo, conn))
+                    {
+                        pedido.Itens = new List<Hamburger>();
+                        var dr = command.ExecuteReader();
+                        while (dr.Read())
+                        {
+                            pedido.Itens.Add(new Hamburger
+                            {
+                                Codigo = Convert.ToInt16(dr["codigo"]),
+                                Nome = dr["nome"].ToString(),
+                                Valor = Convert.ToDouble(dr["valor_vendido"].ToString()),
+                                Quantidade = Convert.ToInt16(dr["quantidade"].ToString())
+                            });
+                        }
+                        dr.Close();
+                    }
+
+                    foreach (var hamburger in pedido.Itens)
+                    {
+                        using (var command = new NpgsqlCommand("select ingredientes.* from ingredientes inner join hamburgeres_ingredientes on hamburgeres_ingredientes.codigo_ingrediente = ingredientes.codigo where hamburgeres_ingredientes.codigo_hamburger = " + hamburger.Codigo, conn))
+                        {
+                            hamburger.Ingredientes = new List<Ingrediente>();
+                            var dr = command.ExecuteReader();
+                            while (dr.Read())
+                            {
+                                hamburger.Ingredientes.Add(new Ingrediente
+                                {
+                                    Codigo = Convert.ToInt16(dr["codigo"]),
+                                    Nome = dr["nome"].ToString()
+                                });
+                            }
+                            dr.Close();
+                        }
+                    }
+                }
+
+                conn.Close();
+                conn.Dispose();
+            }
+        }
 
         private static void carregarPedidosDoDiscoEmCsv()
         {
@@ -406,7 +473,7 @@ namespace hamburger_exercicio
                 Console.WriteLine("----------------------------------");
             }
 
-            Thread.Sleep(10000);
+            Thread.Sleep(5000);
         }
         
         private static void listarClientes()
@@ -421,7 +488,7 @@ namespace hamburger_exercicio
                 Console.WriteLine("----------------------------------");
             }
 
-            Thread.Sleep(10000);
+            Thread.Sleep(5000);
         }
 
         private static void listarHamburgeres()
@@ -442,7 +509,7 @@ namespace hamburger_exercicio
                 Console.WriteLine("----------------------------------");
             }
 
-            Thread.Sleep(10000);
+            Thread.Sleep(5000);
         }
 
         private static void listarPedidos()
@@ -457,7 +524,7 @@ namespace hamburger_exercicio
                 Console.WriteLine($"Escolheu os hamburgeres");
                 foreach(var item in pedido.Itens)
                 {
-                    Console.WriteLine($" - {item.Nome}");
+                    Console.WriteLine($" - {item.Nome} - {item.Quantidade} - R${item.Valor}");
                     foreach(var ingre in item.Ingredientes)
                     {
                         Console.WriteLine($"   - {ingre.Nome}");
@@ -519,10 +586,10 @@ namespace hamburger_exercicio
 
         private static void selectionaHamburgeres(Pedido pedido)
         {
-            Console.WriteLine("Seleciona um dos hamburgeres abaixo:");
+            Console.WriteLine("Selecione um dos hamburgeres abaixo:");
             foreach(var hamburger in hamburgeres)
             {
-                Console.WriteLine($"{hamburger.Codigo} - {hamburger.Nome}");
+                Console.WriteLine($"{hamburger.Codigo} - {hamburger.Nome} R$ {hamburger.Valor}");
             }
             int codigo = Convert.ToInt16(Console.ReadLine());
 
